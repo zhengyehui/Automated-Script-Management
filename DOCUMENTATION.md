@@ -191,7 +191,20 @@ python -m script_controller.run
 - capabilities 中的 `permissions` 只能填写 Tauri 及已用插件提供的 permission 标识符。  
 - 本项目中只保留：`core:default`、`dialog:allow-open` 等已存在项，不要添加未在 schema/插件中声明的 permission。
 
-### 5.8 后端启动超时或「后端未就绪」
+### 5.8 脚本运行「卡住」、与 python_task_manager 的异同
+
+**现象**：点击「启动」后，脚本在跑（例如出现 Selenium/Edge/Chrome、webdriver-manager 等报错），界面一直显示「运行中」，感觉像卡住。
+
+**说明**：  
+- 后端执行方式与 **python_task_manager** 一致：使用 `subprocess.Popen` 启动子进程，**不阻塞** API；子进程 stdout/stderr 写入日志文件；由**后台线程**在进程退出时做清理。因此「启动」请求会立即返回，桌面应用和接口都不会因为脚本在跑而卡死。  
+- 你看到的「卡住」是**脚本进程本身**在阻塞（例如 Selenium 在等 driver、网络不可达「Could not reach host」），进程未退出，所以状态会一直显示「运行中」。
+
+**处理方式**：  
+- **手动停止**：在列表里对该脚本点「停止」即可终止本次运行。  
+- **运行超时（推荐）**：在添加/编辑脚本时设置「运行超时」秒数，超时后后端会自动终止该次运行，避免因脚本内部卡住而一直挂着。  
+- 若脚本依赖网络或浏览器驱动，可先解决环境（网络、driver 路径等），或为该脚本设较短超时以便自动结束。
+
+### 5.9 后端启动超时或「后端未就绪」
 
 **现象**：桌面启动后一直显示「正在启动后端…」或「后端未就绪」。
 

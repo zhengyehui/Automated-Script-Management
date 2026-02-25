@@ -140,6 +140,17 @@ export async function getScriptRuns(id, limit = 50) {
   return request(`/api/scripts/${id}/runs?limit=${limit}`)
 }
 
+/** 调试：后端数据根、DB 路径、指定脚本在 DB 中的运行条数（用于排查无日志） */
+export async function getDebugDataRoot(scriptId = null) {
+  const q = scriptId ? `?script_id=${encodeURIComponent(scriptId)}` : ''
+  return request(`/api/debug/data-root${q}`)
+}
+
+/** 清空所有运行记录与日志文件 */
+export async function clearAllLogs() {
+  return request('/api/debug/clear-all-logs', { method: 'POST' })
+}
+
 export async function getSchedulerStatus() {
   return request('/api/scheduler/status')
 }

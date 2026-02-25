@@ -159,13 +159,15 @@ fn project_root() -> String {
 /// CREATE_NO_WINDOW：启动子进程时不弹出 CMD 窗口（仅 Windows）
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
-/// 启动后端：用解析到的 Python 完整路径执行 -m script_controller.run，cwd 为项目根，并捕获 stderr
+/// 启动后端：用解析到的 Python 完整路径执行 -m script_controller.run，cwd 为项目根，并强制数据根为 script_controller 目录
 fn start_backend() -> Result<Child, String> {
     let root = project_root();
+    let script_controller_root = std::path::Path::new(&root).join("script_controller");
     let python_exe = get_python_exe().unwrap_or_else(|| "python".to_string());
     let mut cmd = Command::new(&python_exe);
     cmd.args(["-m", "script_controller.run"])
         .current_dir(&root)
+        .env("SCRIPT_CONTROLLER_ROOT", script_controller_root.to_string_lossy().to_string())
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::piped());
